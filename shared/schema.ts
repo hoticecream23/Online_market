@@ -1,12 +1,12 @@
 import { sql } from "drizzle-orm";
-import { pgTable, serial, varchar, text, decimal, integer, timestamp, primaryKey } from "drizzle-orm/pg-core";
+import { mysqlTable, int, varchar, text, decimal, timestamp, primaryKey } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Brand table
-export const brands = pgTable("brands", {
-  brandId: serial("brand_id").primaryKey(),
+export const brands = mysqlTable("brands", {
+  brandId: int("brand_id").autoincrement().primaryKey(),
   name: varchar("name", { length: 100 }).notNull().unique(),
   discounts: decimal("discounts", { precision: 5, scale: 2 }).default("0.00"),
 });
@@ -16,8 +16,8 @@ export const brandsRelations = relations(brands, ({ many }) => ({
 }));
 
 // Supplier table
-export const suppliers = pgTable("suppliers", {
-  supplierId: serial("supplier_id").primaryKey(),
+export const suppliers = mysqlTable("suppliers", {
+  supplierId: int("supplier_id").autoincrement().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
   contactEmail: varchar("contact_email", { length: 100 }).unique(),
   contactPhone: varchar("contact_phone", { length: 20 }),
@@ -28,12 +28,12 @@ export const suppliersRelations = relations(suppliers, ({ many }) => ({
 }));
 
 // Product table
-export const products = pgTable("products", {
-  productId: serial("product_id").primaryKey(),
+export const products = mysqlTable("products", {
+  productId: int("product_id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  stock: integer("stock").notNull(),
-  brandId: integer("brand_id").references(() => brands.brandId),
+  stock: int("stock").notNull(),
+  brandId: int("brand_id").references(() => brands.brandId),
 });
 
 export const productsRelations = relations(products, ({ one, many }) => ({
@@ -46,9 +46,9 @@ export const productsRelations = relations(products, ({ one, many }) => ({
 }));
 
 // Product_Supplier junction table
-export const productSuppliers = pgTable("product_suppliers", {
-  productId: integer("product_id").notNull().references(() => products.productId),
-  supplierId: integer("supplier_id").notNull().references(() => suppliers.supplierId),
+export const productSuppliers = mysqlTable("product_suppliers", {
+  productId: int("product_id").notNull().references(() => products.productId),
+  supplierId: int("supplier_id").notNull().references(() => suppliers.supplierId),
 }, (table) => ({
   pk: primaryKey({ columns: [table.productId, table.supplierId] }),
 }));
@@ -65,8 +65,8 @@ export const productSuppliersRelations = relations(productSuppliers, ({ one }) =
 }));
 
 // Customer table
-export const customers = pgTable("customers", {
-  customerId: serial("customer_id").primaryKey(),
+export const customers = mysqlTable("customers", {
+  customerId: int("customer_id").autoincrement().primaryKey(),
   firstName: varchar("first_name", { length: 50 }).notNull(),
   middleName: varchar("middle_name", { length: 50 }),
   lastName: varchar("last_name", { length: 50 }).notNull(),
@@ -80,8 +80,8 @@ export const customersRelations = relations(customers, ({ many }) => ({
 }));
 
 // Employee table
-export const employees = pgTable("employees", {
-  employeeId: serial("employee_id").primaryKey(),
+export const employees = mysqlTable("employees", {
+  employeeId: int("employee_id").autoincrement().primaryKey(),
   firstName: varchar("first_name", { length: 50 }).notNull(),
   lastName: varchar("last_name", { length: 50 }).notNull(),
   designation: varchar("designation", { length: 100 }),
@@ -89,11 +89,11 @@ export const employees = pgTable("employees", {
 });
 
 // Orders table
-export const orders = pgTable("orders", {
-  orderId: serial("order_id").primaryKey(),
+export const orders = mysqlTable("orders", {
+  orderId: int("order_id").autoincrement().primaryKey(),
   orderDate: timestamp("order_date", { mode: "string" }).notNull().default(sql`CURRENT_TIMESTAMP`),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull().default("0.00"),
-  customerId: integer("customer_id").references(() => customers.customerId),
+  customerId: int("customer_id").references(() => customers.customerId),
 });
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -106,11 +106,11 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
 }));
 
 // Order_Details table
-export const orderDetails = pgTable("order_details", {
-  orderDetailId: serial("order_detail_id").primaryKey(),
-  orderId: integer("order_id").references(() => orders.orderId),
-  productId: integer("product_id").references(() => products.productId),
-  quantity: integer("quantity").notNull(),
+export const orderDetails = mysqlTable("order_details", {
+  orderDetailId: int("order_detail_id").autoincrement().primaryKey(),
+  orderId: int("order_id").references(() => orders.orderId),
+  productId: int("product_id").references(() => products.productId),
+  quantity: int("quantity").notNull(),
   pricePerUnit: decimal("price_per_unit", { precision: 10, scale: 2 }).notNull(),
 });
 
@@ -126,9 +126,9 @@ export const orderDetailsRelations = relations(orderDetails, ({ one }) => ({
 }));
 
 // Payment table
-export const payments = pgTable("payments", {
-  transactionId: serial("transaction_id").primaryKey(),
-  orderId: integer("order_id").references(() => orders.orderId),
+export const payments = mysqlTable("payments", {
+  transactionId: int("transaction_id").autoincrement().primaryKey(),
+  orderId: int("order_id").references(() => orders.orderId),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   paymentMode: varchar("payment_mode", { length: 50 }),
   status: varchar("status", { length: 50 }),

@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { createPool } from 'mysql2/promise';
+import { drizzle } from 'drizzle-orm/mysql2';
 import * as schema from "@shared/schema";
 
 
@@ -10,10 +10,8 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create a standard 'pg' Pool
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+// Create a MySQL connection pool
+export const pool = createPool(process.env.DATABASE_URL);
 
-// Pass the 'pg' pool to Drizzle
-export const db = drizzle(pool, { schema }); // <-- CHANGED: Drizzle syntax is slightly different
+// Pass the MySQL pool to Drizzle
+export const db = drizzle(pool, { schema, mode: 'default' });
