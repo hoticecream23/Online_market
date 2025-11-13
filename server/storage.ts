@@ -224,7 +224,7 @@ export class DatabaseStorage implements IStorage {
         orderDate: orders.orderDate,
         totalAmount: orders.totalAmount,
         customerId: orders.customerId,
-        customerName: sql<string>`${customers.firstName} || ' ' || ${customers.lastName}`,
+        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
         customerEmail: customers.email,
       })
       .from(orders)
@@ -239,7 +239,7 @@ export class DatabaseStorage implements IStorage {
         orderDate: orders.orderDate,
         totalAmount: orders.totalAmount,
         customerId: orders.customerId,
-        customerName: sql<string>`${customers.firstName} || ' ' || ${customers.lastName}`,
+        customerName: sql<string>`CONCAT(${customers.firstName}, ' ', ${customers.lastName})`,
         customerEmail: customers.email,
       })
       .from(orders)
@@ -368,15 +368,15 @@ export class DatabaseStorage implements IStorage {
     totalRevenue: string;
   }> {
     const [productCount] = await db
-      .select({ count: sql<number>`COUNT(*)::int` })
+      .select({ count: sql<number>`CAST(COUNT(*) AS UNSIGNED)` })
       .from(products);
 
     const [customerCount] = await db
-      .select({ count: sql<number>`COUNT(*)::int` })
+      .select({ count: sql<number>`CAST(COUNT(*) AS UNSIGNED)` })
       .from(customers);
 
     const [orderCount] = await db
-      .select({ count: sql<number>`COUNT(*)::int` })
+      .select({ count: sql<number>`CAST(COUNT(*) AS UNSIGNED)` })
       .from(orders);
 
     const [revenue] = await db
